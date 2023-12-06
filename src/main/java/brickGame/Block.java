@@ -9,7 +9,6 @@ import javafx.scene.shape.Rectangle;
 import java.io.Serializable;
 
 public class Block implements Serializable {
-    private static Block block = new Block(-1, -1, Color.TRANSPARENT, 99);
 
     public int row;
     public int column;
@@ -17,29 +16,29 @@ public class Block implements Serializable {
 
     public boolean isDestroyed = false;
 
-    private Color color;
+    private final transient Color color;
     public int type;
 
     public int x;
     public int y;
 
-    private int width = 100;
-    private int height = 30;
-    private int paddingTop = height * 2;
-    private int paddingH = 50;
-    public Rectangle rect;
+    private static final int width = 100;
+    private static final int height = 30;
+    private static final int paddingTop = height * 2;
+    private static final int paddingH = 50;
+    public transient Rectangle brick;
 
 
-    public static int NO_HIT = -1;
-    public static int HIT_RIGHT = 0;
-    public static int HIT_BOTTOM = 1;
-    public static int HIT_LEFT = 2;
-    public static int HIT_TOP = 3;
+    public static final int NO_HIT = -1;
+    public static final int HIT_RIGHT = 0;
+    public static final int HIT_BOTTOM = 1;
+    public static final int HIT_LEFT = 2;
+    public static final int HIT_TOP = 3;
 
-    public static int BLOCK_NORMAL = 99;
-    public static int BLOCK_CHOCO = 100;
-    public static int BLOCK_STAR = 101;
-    public static int BLOCK_HEART = 102;
+    public static final int BLOCK_NORMAL = 99;
+    public static final int BLOCK_CHOCO = 100;
+    public static final int BLOCK_STAR = 101;
+    public static final int BLOCK_HEART = 102;
 
 
     public Block(int row, int column, Color color, int type) {
@@ -55,26 +54,26 @@ public class Block implements Serializable {
         x = (column * width) + paddingH;
         y = (row * height) + paddingTop;
 
-        rect = new Rectangle();
-        rect.setWidth(width);
-        rect.setHeight(height);
-        rect.setX(x);
-        rect.setY(y);
+        brick = new Rectangle();
+        brick.setWidth(width);
+        brick.setHeight(height);
+        brick.setX(x);
+        brick.setY(y);
 
         if (type == BLOCK_CHOCO) {
             Image image = new Image("choco.jpg");
             ImagePattern pattern = new ImagePattern(image);
-            rect.setFill(pattern);
+            brick.setFill(pattern);
         } else if (type == BLOCK_HEART) {
             Image image = new Image("heart.jpg");
             ImagePattern pattern = new ImagePattern(image);
-            rect.setFill(pattern);
+            brick.setFill(pattern);
         } else if (type == BLOCK_STAR) {
             Image image = new Image("star.jpg");
             ImagePattern pattern = new ImagePattern(image);
-            rect.setFill(pattern);
+            brick.setFill(pattern);
         } else {
-            rect.setFill(color);
+            brick.setFill(color);
         }
 
     }
@@ -106,19 +105,19 @@ public class Block implements Serializable {
     }
 
     public static int getPaddingTop() {
-        return block.paddingTop;
+        return paddingTop;
     }
 
     public static int getPaddingH() {
-        return block.paddingH;
+        return paddingH;
     }
 
     public static int getHeight() {
-        return block.height;
+        return height;
     }
 
     public static int getWidth() {
-        return block.width;
+        return width;
     }
 
 }
