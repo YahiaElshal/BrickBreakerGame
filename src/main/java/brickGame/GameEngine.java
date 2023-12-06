@@ -75,25 +75,25 @@ public class GameEngine {
     private long time = 0;
 
     private Thread timeThread;
+    private volatile boolean isRunning = true;
 
     private void TimeStart() {
-        timeThread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    while (true) {
-                        time++;
-                        onAction.onTime(time);
-                        Thread.sleep(1);
-                    }
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
+        timeThread = new Thread(() -> {
+            try {
+                while (isRunning) {
+                    time++;
+                    onAction.onTime(time);
+                    Thread.sleep(1);
                 }
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }
         });
         timeThread.start();
+    }
+
+    public void stopTime() {
+        isRunning = false;
     }
 
 
