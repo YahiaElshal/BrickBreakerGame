@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.Random;
 
 /**
- * The {@code Block} class represents a block in a brick game. Blocks can have different types
+ * The {@code GameBlock} class represents a block in a brick game. Blocks can have different types
  * such as normal, alien, star, heart, indestructible_Blocks, and boss. It also manages the appearance
  * and behavior of each block.
  */

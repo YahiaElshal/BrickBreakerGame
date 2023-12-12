@@ -77,10 +77,10 @@ public class GameView {
     }
 
     public void addBulletToView(Bullet bullet) {
-        if (bullet.bullet != null) {
-            Platform.runLater(() -> root.getChildren().add(bullet.bullet));
+        if (bullet.missile != null) {
+            Platform.runLater(() -> root.getChildren().add(bullet.missile));
         } else {
-            LOGGER.severe("bullet.shot is null in addBulletToView method of GameView.java");
+            LOGGER.severe("missile.shot is null in addBulletToView method of GameView.java");
         }
     }
 

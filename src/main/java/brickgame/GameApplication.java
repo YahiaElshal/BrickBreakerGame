@@ -26,11 +26,15 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import static brickgame.Block.imageUris;
-import static java.lang.System.out;
 
-public class Main extends Application implements EventHandler<KeyEvent>, GameEngine.OnAction {
+/**
+ * The main class for the Brick Game application.
+ * This class extends the JavaFX Application and implements
+ * the EventHandler<KeyEvent> and GameEngine.OnAction interfaces.
+ */
+public class GameApplication extends Application implements EventHandler<KeyEvent>, GameEngine.OnAction {
 
-    private static final Logger LOGGER = Logger.getLogger(Main.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(GameApplication.class.getName());
     private static final int SCENE_WIDTH = 500;
     static final int SCENE_HEIGHT = 700;
     public static final int PLAYER_WIDTH = 130;
@@ -50,30 +54,44 @@ public class Main extends Application implements EventHandler<KeyEvent>, GameEng
     public static final int BOSS_LEVEL = 4;
     private static int level = 4;
     private static double xPlayer = 190.0f;
-    private double centerPlayerX = 255.0f;
+    private static double centerPlayerX = 255.0f;
     private static double yPlayer = 640.0f;
-    private double xBall;
-    private double yBall;
+    private static double xBall;
+    private static double yBall;
     private double ballXSpeed = 0.500;
     private double ballYSpeed = 0.500;
-    private int playerLife = 3;
+    private static int playerLife = 3;
     private int bossLife = 30; // Set the initial Boss life count
-
-    public static void setScore(int add) {
-        score = score+add;
-    }
 
     private static int  score    = 0;
 
+    /**
+     * Gets the x-coordinate of the player.
+     *
+     * @return The x-coordinate of the player.
+     */
     public static double getxPlayer() {
         return xPlayer;
     }
+
+    /**
+     * Gets the y-coordinate of the player.
+     *
+     * @return The y-coordinate of the player.
+     */
     public static double getyPlayer() {
         return yPlayer;
     }
+
+    /**
+     * Gets the current game time.
+     *
+     * @return The current game time.
+     */
     public static long getTime() {
         return time;
     }
+
     static long time     = 0;
     private long goldTime = 0;
     Label scoreLabel;
@@ -81,7 +99,7 @@ public class Main extends Application implements EventHandler<KeyEvent>, GameEng
     private int destroyedBlockCount = 0;
     private boolean isGoldStatus = false;
 
-    private boolean canMove = false;
+    private static boolean canMove = false;
     private boolean goDownBall = true;
     private boolean goRightBall = true;
     private boolean collideToPaddle = false;
@@ -96,8 +114,8 @@ public class Main extends Application implements EventHandler<KeyEvent>, GameEng
 
     private Circle ball;
     private Rectangle paddle;
-    private GameEngine engine;
-    private Stage  primaryStage;
+    private static GameEngine engine;
+    Stage  primaryStage;
     private final ImageView[] bossLifeHearts = new ImageView[bossLife];
     private final ArrayList<Bonus> bonuses = new ArrayList<>();
     private static final Random random = new Random();
@@ -105,18 +123,38 @@ public class Main extends Application implements EventHandler<KeyEvent>, GameEng
     private static Pane root;
     private Scene scene;
 
+    /**
+     * Entry point for launching the application.
+     *
+     * @param args The command line arguments.
+     */
     public static void main(String[] args) {
         launch(args);
     }
 
+    /**
+     * Gets the root pane of the application.
+     *
+     * @return The root pane.
+     */
     public static Pane getRoot() {
         return root;
     }
 
+    /**
+     * Sets the root pane of the application.
+     *
+     * @param root The new root pane.
+     */
     public static void setRoot(Pane root) {
-        Main.root = root;
+        GameApplication.root = root;
     }
 
+    /**
+     * Initializes the game when the application starts.
+     *
+     * @param primaryStage The primary stage for the application.
+     */
     @Override
     public void start(Stage primaryStage){
         this.primaryStage = primaryStage;
@@ -126,6 +164,11 @@ public class Main extends Application implements EventHandler<KeyEvent>, GameEng
         initMenu(primaryStage);
     }
 
+    /**
+     * Initializes the main menu for the Brick Game application.
+     *
+     * @param primaryStage The primary stage for the application.
+     */
     private void initMenu(Stage primaryStage) {
         // Create a Pane for the menu layout
         Pane menuPane = new Pane();
@@ -137,17 +180,17 @@ public class Main extends Application implements EventHandler<KeyEvent>, GameEng
         // Add a Label for the game title
         Label title = new Label("Brick Game");
         title.setTranslateX(170);
-        title.setTranslateY(200);
+        title.setTranslateY(80);
         title.setFont(Font.loadFont(Objects.requireNonNull(getClass().getResource(FONT)).toExternalForm(), 32));
         title.setTextFill(Color.web("#0076a3")); // Use a color that matches the space theme
         menuPane.getChildren().add(title);
 
         // Add a TextArea for the rules and instructions
-        TextArea instructions = new TextArea("Here are the rules and instructions...");
-        instructions.setTranslateX(100);
-        instructions.setTranslateY(250);
-        instructions.setPrefWidth(300);
-        instructions.setPrefHeight(200);
+        TextArea instructions = new TextArea(Config.getInstructions());
+        instructions.setTranslateX(50);
+        instructions.setTranslateY(130);
+        instructions.setPrefWidth(400);
+        instructions.setPrefHeight(350);
         instructions.setEditable(false);
         title.setFont(Font.loadFont(Objects.requireNonNull(getClass().getResource(FONT)).toExternalForm(), 32));
         instructions.setStyle("-fx-text-fill: #0076a3;"); // Use a color that matches the space theme
@@ -225,6 +268,11 @@ public class Main extends Application implements EventHandler<KeyEvent>, GameEng
         primaryStage.show();
     }
 
+    /**
+     * Initializes the game, either starting a new game or loading a saved game.
+     *
+     * @param primaryStage The primary stage for the application.
+     */
     private void initGame(Stage primaryStage) {
         if (!loadFromSave) {
             initializeNewGame();
@@ -243,9 +291,13 @@ public class Main extends Application implements EventHandler<KeyEvent>, GameEng
         }
     }
 
+    /**
+     * Initializes a new game, setting up the initial state.
+     * Displays a message if the player levels up.
+     */
     private void initializeNewGame() {
         if (level > 0) {
-            new Score().showMessage("Level Up :)");
+            new DisplayScores().showMessage("Level Up :)");
         }
 
         initBall();
@@ -264,6 +316,12 @@ public class Main extends Application implements EventHandler<KeyEvent>, GameEng
         addGameComponentsToView(gameView);
     }
 
+    /**
+     * Adds various game components to the view, including labels, blocks, paddle, and ball.
+     * Also initializes the boss life bar if the current level is the boss level.
+     *
+     * @param gameView The GameView instance to add components to.
+     */
     private void addGameComponentsToView(GameView gameView) {
         scoreLabel = new Label("Score: " + score);
         Label levelLabel = new Label("Level: " + (level+1));
@@ -276,7 +334,7 @@ public class Main extends Application implements EventHandler<KeyEvent>, GameEng
             gameView.addHeartLabelToView(heartLabel);
             gameView.addLevelLabelToView(levelLabel);
         } else {
-            LOGGER.severe("One or more nodes are null in start method of Main.java");
+            LOGGER.severe("One or more nodes are null in start method of GameApplication.java");
         }
 
         for (Block block : Block.blocksArrayList) {
@@ -295,6 +353,11 @@ public class Main extends Application implements EventHandler<KeyEvent>, GameEng
         scene.setOnKeyPressed(this);
     }
 
+    /**
+     * Initializes the boss life bar, adding heart images to represent the boss's life.
+     *
+     * @param gameView The GameView instance to add the boss life bar to.
+     */
     private void initializeBossLifeBar(GameView gameView) {
         gameView.addLifeBarBackground();
         for (int i = 0; i < bossLife; i++) {
@@ -304,12 +367,15 @@ public class Main extends Application implements EventHandler<KeyEvent>, GameEng
             heart.setTranslateX(((double) i * 7) + 150);
             heart.setTranslateY(15);
             bossLifeHearts[i] = heart;
-            LOGGER.info("before add boss life bar");
             gameView.addBossLifeBarToView(heart);
-            LOGGER.info("Boss life bar initialised");
         }
     }
 
+    /**
+     * Sets up the game scene by setting the root, stylesheets, and key event handler.
+     *
+     * @param primaryStage The primary stage for the application.
+     */
     private void setupScene(Stage primaryStage) {
         scene.setRoot(getRoot());
         scene.getStylesheets().add("style.css");
@@ -320,6 +386,9 @@ public class Main extends Application implements EventHandler<KeyEvent>, GameEng
         primaryStage.show();
     }
 
+    /**
+     * Starts the game engine, initializing it with event handling and frame rate.
+     */
     private void startGameEngine() {
         engine = new GameEngine();
         engine.setOnAction(this);
@@ -327,6 +396,11 @@ public class Main extends Application implements EventHandler<KeyEvent>, GameEng
         engine.start();
     }
 
+    /**
+     * Handles key events for player input, such as moving the paddle and saving the game.
+     *
+     * @param event The KeyEvent instance representing the key event.
+     */
     @Override
     public void handle(KeyEvent event) {
         switch (event.getCode()) {
@@ -349,6 +423,11 @@ public class Main extends Application implements EventHandler<KeyEvent>, GameEng
         }
     }
 
+    /**
+     * Moves the player paddle in the specified direction using a separate thread for smooth animation.
+     *
+     * @param direction The direction of movement (LEFT or RIGHT).
+     */
     private void move(final int direction) {
         new Thread(() -> {
             int sleepTime = 4;
@@ -377,7 +456,9 @@ public class Main extends Application implements EventHandler<KeyEvent>, GameEng
         }).start();
     }
 
-
+    /**
+     * Initializes the ball by setting its initial position and appearance.
+     */
     private void initBall() {
         xBall = centerPlayerX;
         yBall = yPlayer + 5;
@@ -386,6 +467,9 @@ public class Main extends Application implements EventHandler<KeyEvent>, GameEng
         ball.setFill(new ImagePattern(new Image("ball.png")));
     }
 
+    /**
+     * Initializes the paddle by setting its initial position and appearance.
+     */
     private void initPaddle() {
         paddle = new Rectangle();
         paddle.setWidth(PLAYER_WIDTH);
@@ -395,6 +479,11 @@ public class Main extends Application implements EventHandler<KeyEvent>, GameEng
         ImagePattern pattern = new ImagePattern(new Image("paddle.png"));
         paddle.setFill(pattern);
     }
+
+
+    /**
+     * Resets collision flags for various game elements to their default states.
+     */
     private void resetCollideFlags() {
         collideToPaddle = false;
         collideToPaddleAndMoveToRight = false;
@@ -407,7 +496,11 @@ public class Main extends Application implements EventHandler<KeyEvent>, GameEng
         collideToTopBlock = false;
     }
 
-    private void resetBall() {
+
+    /**
+     * Resets the ball and player paddle to their initial positions.
+     */
+    private static void resetBall() {
         canMove = false;
         xBall = centerPlayerX;
         yBall = yPlayer + 3;
@@ -416,11 +509,18 @@ public class Main extends Application implements EventHandler<KeyEvent>, GameEng
         yPlayer = 640.0f;
     }
 
+    /**
+     * Resets the position of the ball to the initial position on the player paddle.
+     */
     private void resetBallPosition() {
         xBall = centerPlayerX;
         yBall = yPlayer + 3;
     }
 
+    /**
+     * Applies physics to the ball, updating its position based on speed and direction.
+     * Handles collisions with walls, blocks, and the player paddle.
+     */
     private void setPhysicsToBall() {
         yBall += goDownBall ? ballYSpeed : -ballYSpeed;
         xBall += goRightBall ? ballXSpeed : -ballXSpeed;
@@ -498,6 +598,11 @@ public class Main extends Application implements EventHandler<KeyEvent>, GameEng
             goDownBall = true;
         }
     }
+
+    /**
+     * Handles the collision between the ball and the player paddle.
+     * Adjusts the ball's speed and direction based on the collision.
+     */
     private void balltoPaddleCollision() {
         if (yBall >= yPlayer - BALL_RADIUS && (xBall >= xPlayer && xBall <= xPlayer + PLAYER_WIDTH)) {
             resetCollideFlags();
@@ -507,7 +612,6 @@ public class Main extends Application implements EventHandler<KeyEvent>, GameEng
 
              if (Math.abs(relation) <= 0.3) {
                  ballXSpeed = Math.abs(relation);
-                 //ballYSpeed = Math.abs(relation);
              } else if (Math.abs(relation) > 0.3 && Math.abs(relation) <= 0.7) {
                  ballXSpeed = (Math.abs(relation) * 1.2) + (level / 4.00);
                  ballYSpeed = (Math.abs(relation) * 1.2) + (level / 4.00);
@@ -525,59 +629,73 @@ public class Main extends Application implements EventHandler<KeyEvent>, GameEng
         }
     }
 
-    private void loseheart() {
+    /**
+     * Handles the loss of a player life.
+     * Resets the ball and decrements the player life count.
+     * Shows a message if the player runs out of lives and stops the game engine.
+     */
+    static void loseheart() {
         resetBall();
         playerLife--;
-        new Score().show((double) SCENE_WIDTH / 2, (double) SCENE_HEIGHT / 2, -1);
+        new DisplayScores().show((double) SCENE_WIDTH / 2, (double) SCENE_HEIGHT / 2, -1);
 
         if (playerLife == 0) {
-            new Score().showGameOver(this);
+            GameApplication gameApplication = new GameApplication();
+            new DisplayScores().showGameOver(gameApplication);
             engine.stop();
         }
     }
 
+    /**
+     * Checks the count of destroyed blocks and the boss hit cooldown to determine if all blocks are destroyed.
+     * If all blocks are destroyed and the boss hit cooldown is over, advances to the next level.
+     */
     private void checkDestroyedCount() {
-/*        out.println("Size of blocksArrayList: " + Block.blocksArrayList.size());
-        out.println("Value of destroyedBlockCount: " + destroyedBlockCount);*/
-        // Check if all blocks are destroyed or if the blocksArrayList is empty
-        //todo fix for the hard levels
-        if (bossHitCooldown == 0) {
-            if (destroyedBlockCount + Block.indestructible_Blocks >= Block.blocksArrayList.size()) {
+        if (bossHitCooldown == 0 && (destroyedBlockCount + Block.indestructible_Blocks >= Block.blocksArrayList.size())) {
                 // If all blocks are destroyed, advance to the next level
                 nextLevel();
             bossHitCooldown = BOSS_HIT_COOLDOWN_DURATION;
-            }
-            out.println("destroyed blocks are: " + destroyedBlockCount + " and indestructible blocks are: " + Block.indestructible_Blocks + " and blocksArrayList size is: " + Block.blocksArrayList.size());
+
         }
     }
 
+    /**
+     * Decreases the boss's life when the boss hit cooldown is over.
+     * Updates the visual representation of the boss's life bar.
+     */
     private void decreaseBossLife() {
         if (bossHitCooldown == 0) {
             bossLife--;
-
-            out.println("Boss life: " + bossLife);
             GameView gameView = new GameView(getRoot());
             gameView.removeBossLifeBar(bossLifeHearts[bossLife]);
             bossHitCooldown = BOSS_HIT_COOLDOWN_DURATION;
             // Update the visual representation of the boss's life bar
         }
     }
+
+    /**
+     * Checks if the boss block is eliminated, and if so, displays a win message, stops the game engine, and updates the background.
+     */
     private void bossEliminated() {
         if (!Block.blocksArrayList.isEmpty() && Block.blocksArrayList.get(0) != null && (level == BOSS_LEVEL && Block.blocksArrayList.get(0).isDestroyed)) {
-            out.println("You Win");
             Image backgroundImage = new Image("winbg.png");
             root.setBackground(new Background(new BackgroundImage(backgroundImage, BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT, BackgroundPosition.CENTER, new BackgroundSize(BackgroundSize.AUTO, BackgroundSize.AUTO, false, false, true, true))));
-                new Score().showWin();
+                new DisplayScores().showWin();
                 engine.stop();
         }
     }
+
+    /**
+     * Saves the current game state to a file in a separate thread.
+     * Displays a message indicating that the game is saved.
+     */
     private void saveGame() {
         new Thread(() -> {
             try {
                 new File(SAVE_PATH_DIR).mkdirs();
                 try (ObjectOutputStream outputStream = new ObjectOutputStream(new FileOutputStream(SAVE_PATH))) {
                     writeGameData(outputStream);
-                    new Score().showMessage("Game Saved");
+                    new DisplayScores().showMessage("Game Saved");
                 }
             } catch (IOException e) {
                 LOGGER.log(Level.SEVERE, "An IO exception was thrown in saveGame", e);
@@ -585,17 +703,27 @@ public class Main extends Application implements EventHandler<KeyEvent>, GameEng
         }).start();
     }
 
+    /**
+     * Loads a saved game state from a file using the LoadSave class.
+     * Updates the game state and displays a message indicating that the game is loaded.
+     */
     private void loadGame() {
         LoadSave loadSave = new LoadSave();
         try {
             loadSave.read();
             updateGameState(loadSave);
-            new Score().showMessage("Game Loaded");
+            new DisplayScores().showMessage("Game Loaded");
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "An exception was thrown in loadGame", e);
         }
     }
 
+    /**
+     * Writes the game data to an ObjectOutputStream for saving.
+     *
+     * @param outputStream The ObjectOutputStream to write the data to.
+     * @throws IOException If an I/O error occurs during writing.
+     */
     private void writeGameData(ObjectOutputStream outputStream) throws IOException {
         outputStream.writeInt(level);
         outputStream.writeInt(score);
@@ -633,6 +761,11 @@ public class Main extends Application implements EventHandler<KeyEvent>, GameEng
         outputStream.writeObject(blockSerializable);
     }
 
+    /**
+     * Updates the game state based on the data loaded from a saved game.
+     *
+     * @param loadSave The LoadSave object containing the loaded game data.
+     */
     private void updateGameState(LoadSave loadSave) {
         Block.isExistHeartBlock = loadSave.isExistHeartBlock;
         isGoldStatus = loadSave.isGoldStatus;
@@ -676,6 +809,10 @@ public class Main extends Application implements EventHandler<KeyEvent>, GameEng
         }
     }
 
+    /**
+     * Advances to the next game level, resetting various game parameters.
+     * Clears the blocks and bonuses for the new level.
+     */
     private void nextLevel() {
         Platform.runLater(() -> {
             try {
@@ -710,7 +847,12 @@ public class Main extends Application implements EventHandler<KeyEvent>, GameEng
         });
     }
 
-    public void restartGame() {
+    /**
+     * Restarts the game, resetting all parameters to their initial values.
+     *
+     * @param primaryStage The primary stage for the game.
+     */
+    public void restartGame(Stage primaryStage) {
         try {
             level = 0;
             playerLife = 3;
@@ -738,10 +880,11 @@ public class Main extends Application implements EventHandler<KeyEvent>, GameEng
         }
     }
 
-
-
-
-        @Override
+    /**
+     * Handles updates in the game loop. Updates boss hit cooldown, displays score and heart labels,
+     * checks block collisions, and updates positions for paddle, ball, and bonuses.
+     */
+    @Override
     public void onUpdate() {
         // Inside the server update loop
         bossHitCooldown = Math.max(0, bossHitCooldown - 1);
@@ -758,6 +901,9 @@ public class Main extends Application implements EventHandler<KeyEvent>, GameEng
 
     }
 
+    /**
+     * Updates the positions of the player paddle and the ball in the game view.
+     */
     private void updatePaddleAndBallPosition() {
             paddle.setX(xPlayer);
             paddle.setY(yPlayer);
@@ -765,6 +911,10 @@ public class Main extends Application implements EventHandler<KeyEvent>, GameEng
             ball.setCenterY(yBall);
     }
 
+    /**
+     * Checks collisions between the ball and the blocks in the game.
+     * Handles block hits and updates the score.
+     */
     private void checkBlockCollisions() {
         boolean isHit;
         for (Block block : Block.blocksArrayList) {
@@ -777,14 +927,22 @@ public class Main extends Application implements EventHandler<KeyEvent>, GameEng
             }
         }
     }
+
+    /**
+     * Handles the collision and hit events for a specific block.
+     * Updates the score, marks the block as destroyed, and handles special block types.
+     *
+     * @param block The block involved in the collision.
+     */
     private void handleBlockHit(Block block) {
         if (block.type == Block.BOSS && bossLife != 0) {
             decreaseBossLife();
-            new Score().show(block.x, block.y, bossLife);
+            new DisplayScores().show(block.x, block.y, bossLife);
         } else if (block.type != Block.BLOCK_INDESTRUCTIBLE) {
             updateScoreAndHideBlock(block, 1);
             block.isDestroyed = true;
             destroyedBlockCount++;
+            //todo assign to missile paddle collision
 /*          Explode explosion = new Explode();
             explosion.setLayoutX(block.x);
             explosion.setLayoutY(block.y);
@@ -794,6 +952,11 @@ public class Main extends Application implements EventHandler<KeyEvent>, GameEng
         getCollisionSide2(ball, block.brick);
     }
 
+    /**
+     * Handles special block types (e.g., alien, star, heart) and triggers corresponding actions.
+     *
+     * @param block The block with a special type.
+     */
     private void handleSpecialBlockTypes(Block block) {
         if (block.type == Block.BLOCK_ALIEN) {
             createBonus(block);
@@ -808,6 +971,12 @@ public class Main extends Application implements EventHandler<KeyEvent>, GameEng
         }
     }
 
+    /**
+     * Creates a bonus based on the given block. The bonus type depends on the game level.
+     * Adds the bonus to the view, and records its creation time.
+     *
+     * @param block The block associated with the bonus.
+     */
     private void createBonus(Block block) {
         Bonus bonus = new Bonus(block.row, block.column, block,false);
         if (level <= 2) {
@@ -817,38 +986,59 @@ public class Main extends Application implements EventHandler<KeyEvent>, GameEng
         if (bonus.reward != null) {
             GameView gameView = new GameView(getRoot());
             gameView.addBonusToView(bonus);
-            //Platform.runLater(() -> root.getChildren().add(reward.reward));
             bonuses.add(bonus);
         } else {
             LOGGER.severe("reward.reward is null");
         }
     }
 
-
+    /**
+     * Activates the gold status, updating game parameters such as gold time, ball appearance, and root style.
+     * Sets the isGoldStatus flag to true.
+     */
     private void activateGoldStatus() {
         goldTime = time;
         ball.setFill(new ImagePattern(new Image("goldball.png")));
         getRoot().getStyleClass().add("goldRoot");
         isGoldStatus = true;
     }
+
+    /**
+     * Updates the game score based on the given reward value.
+     * Displays the reward at the block's position and hides the block in the view.
+     *
+     * @param block  The block associated with the reward.
+     * @param reward The reward value to be added to the score.
+     */
     private void updateScoreAndHideBlock(Block block, int reward) {
         score += reward;
-        new Score().show(block.x, block.y, reward);
+        new DisplayScores().show(block.x, block.y, reward);
         try {
             if (block.brick != null) {
-                LOGGER.info("I am about to set block " + block.type + " to invisible in updateScoreandHideBlock");
                Platform.runLater(()-> block.brick.setVisible(false));
             } else {
-                out.println("block.brick is null");
+                LOGGER.severe("block.brick is null");
             }
         } catch (IndexOutOfBoundsException e) {
-            out.println("Caught IndexOutOfBoundsException by Yahia: " + e.getMessage());
+            LOGGER.severe("Caught IndexOutOfBoundsException by Yahia: " + e.getMessage());
         }
     }
+
+    /**
+     * Empty method to be overridden. Invoked during the initialization phase of the game.
+     */
     @Override
     public void onInit() {
         // empty
     }
+
+    /**
+     * Determines the collision side between a circle and a rectangle.
+     * Updates collision flags based on the collision side.
+     *
+     * @param c The circle involved in the collision.
+     * @param r The rectangle involved in the collision.
+     */
     public void getCollisionSide2(Circle c, Rectangle r) {
         double dx = c.getCenterX() - Math.max(r.getX(), Math.min(c.getCenterX(), r.getX() + r.getWidth()));
         double dy = c.getCenterY() - Math.max(r.getY(), Math.min(c.getCenterY(), r.getY() + r.getHeight()));
@@ -871,11 +1061,24 @@ public class Main extends Application implements EventHandler<KeyEvent>, GameEng
             }
         }
     }
+
+    /**
+     * Checks for collision between a circle and a rectangle.
+     *
+     * @param c The circle involved in the collision.
+     * @param r The rectangle involved in the collision.
+     * @return True if there is a collision, false otherwise.
+     */
     public boolean checkCollision(Circle c, Rectangle r) {
         double dx = c.getCenterX() - Math.max(r.getX(), Math.min(c.getCenterX(), r.getX() + r.getWidth()));
         double dy = c.getCenterY() - Math.max(r.getY(), Math.min(c.getCenterY(), r.getY() + r.getHeight()));
         return (dx * dx + dy * dy) <= (c.getRadius() * c.getRadius());
     }
+
+    /**
+     * Updates physics-related aspects of the game.
+     * Invokes methods to update bonuses position, check destroyed count, check if the boss is eliminated, and set ball physics.
+     */
     @Override
     public void onPhysicsUpdate() {
         Platform.runLater(this::updateBonusesPosition);
@@ -883,6 +1086,10 @@ public class Main extends Application implements EventHandler<KeyEvent>, GameEng
         bossEliminated();
         setPhysicsToBall();
     }
+
+    /**
+     * Updates the gold status, including reverting to the normal ball appearance and removing gold status styling after a certain duration.
+     */
     private void updateGoldStatus() {
             if (time - goldTime > 5000) {
                 ball.setFill(new ImagePattern(new Image("ball.png")));
@@ -892,25 +1099,35 @@ public class Main extends Application implements EventHandler<KeyEvent>, GameEng
                 isGoldStatus = false;
             }
     }
+
+    /**
+     * Updates the position of bonuses in the game.
+     * Checks for collisions with the player paddle, handles taken bonuses, and updates their positions.
+     */
     private void updateBonusesPosition() {
             for (Bonus bonus : bonuses) {
                 if (bonus.y > SCENE_HEIGHT || bonus.taken) {
                     continue;
                 }
                 if (bonus.y >= yPlayer && bonus.y <= yPlayer + PLAYER_HEIGHT && bonus.x >= xPlayer && bonus.x <= xPlayer + PLAYER_WIDTH) {
-                    out.println("You Got it and +3 score for you");
                     bonus.taken = true;
                     bonus.reward.setVisible(false);
                     score += 10;
-                    new Score().show(bonus.x, bonus.y, 10);
+                    new DisplayScores().show(bonus.x, bonus.y, 10);
                 }
                 // Update the reward's y property to move it downwards
                 bonus.y += ((time - bonus.timeCreated) / 1000.000) + 1.000; // Adjust the speed as needed
                 bonus.reward.setY(bonus.y);
             }
     }
+
+    /**
+     * Updates the game time. Used to synchronize time across the game components.
+     *
+     * @param time The current time value.
+     */
     @Override
     public void onTime(long time) {
-        Main.time = time;
+        GameApplication.time = time;
     }
 }

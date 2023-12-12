@@ -70,6 +70,10 @@ public class Config {
      * The color setting for Light Green blocks.
      */
     private static String Light_Green;
+    /**
+     * The color setting for Light Purple blocks.
+     */
+    private static String Instructions;
 
     static {
         try (InputStream input = Config.class.getClassLoader().getResourceAsStream("config.properties")) {
@@ -93,12 +97,21 @@ public class Config {
                 Yellow = prop.getProperty("Yellow");
                 Light_Blue = prop.getProperty("Light_Blue");
                 Light_Green = prop.getProperty("Light_Green");
+                Instructions = prop.getProperty("instructions");
             }
         } catch (IOException ex) {
-            ex.printStackTrace();
+            Thread.currentThread().interrupt();
         }
     }
 
+    /**
+     * Gets the Instructions shown to user when game starts.
+     *
+     * @return The list of instructions.
+     */
+    public static String getInstructions() {
+        return Instructions;
+    }
     /**
      * Gets the path where game data should be saved.
      *

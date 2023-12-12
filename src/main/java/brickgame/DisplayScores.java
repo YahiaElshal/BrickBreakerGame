@@ -5,11 +5,11 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import java.util.logging.Logger;
 /**
- * The Score class is responsible for displaying score updates, messages, and game status (win/lose) on the screen.
+ * The DisplayScores class is responsible for displaying score updates, messages, and game status (win/lose) on the screen.
  */
-public class Score {
+public class DisplayScores {
     // Logger for logging messages
-    private static final Logger LOGGER = Logger.getLogger(Score.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(DisplayScores.class.getName());
 
     /**
      * Displays a score update at the specified coordinates.
@@ -23,10 +23,10 @@ public class Score {
         final Label label = createLabel(sign + score, x, y);
 
         Platform.runLater(() -> {
-            if (Main.getRoot() != null) {
-                Main.getRoot().getChildren().add(label);
+            if (GameApplication.getRoot() != null) {
+                GameApplication.getRoot().getChildren().add(label);
             } else {
-                LOGGER.severe("Failed to add label to root in show method of Score.java. Either main.root is null.");
+                LOGGER.severe("Failed to add label to root in show method of DisplayScores.java. Either main.root is null.");
             }
         });
 
@@ -42,10 +42,10 @@ public class Score {
         final Label label = createLabel(message, 220, 340);
 
         Platform.runLater(() -> {
-            if (Main.getRoot() != null) {
-                Main.getRoot().getChildren().add(label);
+            if (GameApplication.getRoot() != null) {
+                GameApplication.getRoot().getChildren().add(label);
             } else {
-                LOGGER.severe("Failed to add label to root in showMessage method of Score.java. main.root is null.");
+                LOGGER.severe("Failed to add label to root in showMessage method of DisplayScores.java. main.root is null.");
             }
         });
 
@@ -55,17 +55,17 @@ public class Score {
     /**
      * Displays a "Game Over" message and a restart button on the screen.
      *
-     * @param main The main game object.
+     * @param gameApplication The gameApplication game object.
      */
-    public void showGameOver(final Main main) {
+    public void showGameOver(final GameApplication gameApplication) {
         Platform.runLater(() -> {
             Label label = createLabel("Game Over :(", 200, 250);
             label.setScaleX(2);
             label.setScaleY(2);
 
-            Button restart = createRestartButton(main);
+            Button restart = createRestartButton(gameApplication);
 
-            Main.getRoot().getChildren().addAll(label, restart);
+            GameApplication.getRoot().getChildren().addAll(label, restart);
         });
     }
 
@@ -78,7 +78,7 @@ public class Score {
             label.setScaleX(2);
             label.setScaleY(2);
 
-            Main.getRoot().getChildren().addAll(label);
+            GameApplication.getRoot().getChildren().addAll(label);
         });
     }
 
@@ -124,14 +124,14 @@ public class Score {
     /**
      * Creates a new restart button.
      *
-     * @param main The main game object.
+     * @param gameApplication The gameApplication game object.
      * @return The created restart button.
      */
-    private Button createRestartButton(Main main) {
+    private Button createRestartButton(GameApplication gameApplication) {
         Button restart = new Button("Restart");
         restart.setTranslateX(220);
         restart.setTranslateY(300);
-        restart.setOnAction(event -> main.restartGame());
+        restart.setOnAction(event -> gameApplication.restartGame(gameApplication.primaryStage));
         return restart;
     }
 }
