@@ -1,4 +1,14 @@
 .root {
+    -fx-background-image: url('bg.jpg');
+    -fx-background-repeat: no-repeat;
+    -fx-background-size: cover;
+    -fx-background-color: #1d1d1d;
+}
+
+.wonGame{
+	-fx-background-image: url('winbg.jpg');
+    -fx-background-repeat: no-repeat;
+    -fx-background-size: cover;
     -fx-background-color: #1d1d1d;
 }
 
